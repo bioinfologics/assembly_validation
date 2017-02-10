@@ -5,13 +5,7 @@ import random
 import multiprocessing
 import sys
 
-## bash line to get the condensed sam file
-
-## bash line to get the names
-# bioawk -c'fastx' '{print $name" "length($seq)}' discovar_5th_contigs_mt9k.fa > contig_names_mt9kb.txt
-
 def load_input_data(filename):
-    ## put here as a comment the bash line needed to create this
     data = pd.read_csv(filename, delimiter=" ", names=["name", "p1", "p2", "cuenta"])
     return data
 
@@ -42,7 +36,7 @@ def link_coverage_pileup(data, contig_names):
                 for i in xrange(int(v.p1/BIN_SIZE), int(v.p2/BIN_SIZE)-1):
                     mdata[i]+=v.cuenta
 
-            BIN_BUFFER=int(LIBRARY_SIZE/BIN_SIZE) # Bins to ignore in each end because of the border effect
+            BIN_BUFFER=int(LIBRARY_SIZE/BIN_SIZE)
             for p in xrange(int(BIN_BUFFER), int(bin_number-BIN_BUFFER)):
                 bulk_data.append(mdata[p])
 
@@ -60,7 +54,6 @@ def get_threshold((data, contig_names, percentile)):
     random_data, random_contig_dict = shuffle_data(data, 100, contig_names)
     ## calculate threshold
     threshold, bdata = calculate_threshold(data, random_contig_dict, percentile)
-    print ".",
     return threshold
 
 def compute_threshold(data, contig_names, reps, thredas, percentile):
@@ -114,8 +107,6 @@ def measure_contig((data, name, contig_length, threshold)):
 
     largo = contig_length
     fdata = data[data["name"] == name]
-    # if fdata.size[0] == 0:
-    #     return {}
 
     bin_number = int(largo / BIN_SIZE) + 1
     mdata = [0] * bin_number
@@ -126,7 +117,6 @@ def measure_contig((data, name, contig_length, threshold)):
 
     contig_metrics={}
     splited_contigs_length=[]
-    accumulated_supported_content=[] ## TODO hacer que lo reyene
     breakpoints_per_contig=[]
     
     fx, masked_x, tc, fc = process_contig(mdata, threshold)
@@ -153,7 +143,6 @@ def measure_contig((data, name, contig_length, threshold)):
 def compute_contig_measurements(data, contig_names, threshold, threads, MIN_CONTIG_LENGTH):
     """ `Compute the measurement for all the contigs present in the dataset """
     print "Number of uinque scaffolds present: %s" %(len(data['name'].unique()), )
-    # bulkdata, linkdata = link_coverage_pileup(data, contig_names)
 
     print "Done pileup collectiong args to run the multip" 
     args=[]
